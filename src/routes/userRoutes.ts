@@ -6,15 +6,29 @@ const prisma = new PrismaClient();
 
 // Get all users
 router.get("/", async (req, res) => {
-  const allUsers = await prisma.user.findMany();
-  res.status(200).json(allUsers);
+  try {
+    const allUsers = await prisma.user.findMany();
+    if (allUsers.length == 0) {
+      return res.status(404).json({ error: "There is no user" });
+    }
+    res.status(200).json(allUsers);
+  } catch (e: any) {
+    res.status(400).json({ error: e.message});
+  }
 });
 
 // Get user by id
 router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-  const user = await prisma.user.findUnique({ where: { id: Number(id) } });
-  res.status(200).json(user);
+  try {
+    const { id } = req.params;
+    const user = await prisma.user.findUnique({ where: { id: Number(id) } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Create user
@@ -30,7 +44,7 @@ router.post("/", async (req, res) => {
       },
     });
     res.json(result);
-  } catch (e) {
+  } catch (e: any) {
     res.status(400).json({ error: "username and email must be unique" });
   }
 });
@@ -45,7 +59,7 @@ router.put("/:id", async (req, res) => {
       data: { bio, name, image },
     });
     res.json(result);
-  } catch (e) {
+  } catch (e: any) {
     res.status(400).json({ error: "Faild to update a user" });
   }
 });
