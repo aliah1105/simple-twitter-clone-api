@@ -20,7 +20,11 @@ router.post("/", async (req, res) => {
 // Get all tweets
 router.get("/", async (req, res) => {
   try {
-    const allTweets = await prisma.tweet.findMany();
+    const allTweets = await prisma.tweet.findMany({
+      include: {
+        user: { select: { id: true, name: true, username: true, image: true } },
+      },
+    });
     if (allTweets.length == 0) {
       return res.status(404).json({ error: "There is no tweets" });
     }

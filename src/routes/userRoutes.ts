@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
     }
     res.status(200).json(allUsers);
   } catch (e: any) {
-    res.status(400).json({ error: e.message});
+    res.status(400).json({ error: e.message });
   }
 });
 
@@ -21,7 +21,10 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await prisma.user.findUnique({ where: { id: Number(id) } });
+    const user = await prisma.user.findUnique({
+      where: { id: Number(id) },
+      include: { tweets: true },
+    });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
