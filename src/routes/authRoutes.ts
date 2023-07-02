@@ -1,13 +1,17 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
+import { EMAIL_TEMPLATE } from "../utils/email_template";
+import send_mail from "../utils/mail";
 
 const router = Router();
 const prisma = new PrismaClient();
-
 const EMAIL_TOKEN_EXPIRATION_MINUTES = 10;
 const API_EXPIRATION_AUTHENTICATIO_HOUR = 12;
 const JWT_SECRET = "SUPER SECRET";
+
+
 
 // Generate a random 8 digit number token as emailToken
 function generateEmailToken(): string {
@@ -47,6 +51,36 @@ router.post("/login", async (req, res) => {
       },
     });
     // send emailToken to user's email
+
+    const options = {
+      from: "aliahadi.f1105@gmail.com", // sender address
+      to: email, // receiver email
+      subject: "Your one-time password", // Subject line
+      text: emailToken,
+      html: EMAIL_TEMPLATE(emailToken),
+    };
+
+    await send_mail(options, (info: any) => {
+      console.log("Email sent successfully");
+      console.log("MESSAGE ID: ", info.messageId);
+    });
+
+    // const mailOptions = {
+    //   from: "aliahadi.f1105@gmail.com",
+    //   to: email,
+    //   subject: "Send password verification",
+    //   text: EMAIL_TEMPLATE(emailToken.toString()),
+    // };
+
+    // // @ts-ignore
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //   if (error) {
+    //     console.log(error);
+    //   } else {
+    //     console.log("Email sent: " + info);
+    //   }
+    // });
+
     res.sendStatus(200);
   } catch (e: any) {
     res

@@ -9,16 +9,16 @@ const JWT_SECRET = "SUPER SECRET";
 // Create tweet
 router.post("/", async (req, res) => {
   const { content, image } = req.body;
-
-  res.sendStatus(200);
-  // try {
-  //   const userTweet = await prisma.tweet.create({
-  //     data: { content, image },
-  //   });
-  //   res.json(userTweet);
-  // } catch (e: any) {
-  //   res.status(400).json({ error: e.message });
-  // }
+  // @ts-ignore
+  const user = req.user;
+  try {
+    const userTweet = await prisma.tweet.create({
+      data: { content, image, userId: user.id },
+    });
+    res.json(userTweet);
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
 });
 
 // Get all tweets
